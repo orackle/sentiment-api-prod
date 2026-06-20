@@ -1,3 +1,6 @@
+[![CI/CD Pipeline](https://github.com/orackle/sentiment-api-prod/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/orackle/sentiment-api-prod/actions/workflows/ci-cd.yml)
+---
+
 # 🎭 Sentiment Analysis Production API
 
 A high-performance, asynchronous sentiment analysis production API built with **FastAPI**, **PyTorch (CPU)**, and **Hugging Face Transformers**. The service is fully compatible with **Python 3.14** and features multi-threaded inference offloading, request tracing, and Prometheus metrics monitoring.
