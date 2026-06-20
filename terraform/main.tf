@@ -1,190 +1,78 @@
-terraform {
-  required_version = ">= 1.0.0"
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
+# ECR Repository
+resource "aws_ecr_repository" "sentiment_api" {
+  name                 = "sentiment-api"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true   # makes cleanup easy
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+# VPC for the EKS cluster
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "5.1.2"
+
+  name = "sentiment-vpc"
+  cidr = "10.0.0.0/16"
+
+  azs             = ["${var.aws_region}a", "${var.aws_region}b"]
+  private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
+  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24"]
+
+  enable_nat_gateway     = true
+  single_nat_gateway     = true   # cheaper, only one NAT gateway
+  enable_dns_hostnames   = true
+}
+
+# EKS Cluster
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "19.16.0"
+
+  cluster_name    = var.cluster_name
+  cluster_version = "1.28"
+
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnets
+
+  # Enable Kubernetes API access from your machine (for kubectl)
+  cluster_endpoint_public_access = true
+
+  # IAM role for the service account (IRSA) so pods can pull from ECR
+  enable_irsa = true
+
+  eks_managed_node_groups = {
+    main = {
+      desired_size = var.desired_capacity
+      max_size     = 3
+      min_size     = 1
+
+      instance_types = [var.node_instance_type]
+
+      labels = {
+        Environment = "prod"
+      }
+
+      additional_tags = {
+        Name = "sentiment-api-node"
+      }
     }
   }
 }
 
-provider "aws" {
-  region = var.aws_region
+# Kubernetes provider configuration (so we can optionally apply k8s resources with Terraform)
+data "aws_eks_cluster" "cluster" {
+  name = module.eks.cluster_name
 }
 
-# ==========================================
-# Networking (VPC, Subnets, Routing)
-# ==========================================
-
-data "aws_availability_zones" "available" {
-  state = "available"
+data "aws_eks_cluster_auth" "cluster" {
+  name = module.eks.cluster_name
 }
 
-resource "aws_vpc" "eks_vpc" {
-  cidr_block           = var.vpc_cidr
-  enable_dns_hostnames = true
-  enable_dns_support   = true
-
-  tags = {
-    Name = "${var.cluster_name}-vpc"
-  }
-}
-
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.eks_vpc.id
-
-  tags = {
-    Name = "${var.cluster_name}-igw"
-  }
-}
-
-resource "aws_subnet" "public_subnet_1" {
-  vpc_id                  = aws_vpc.eks_vpc.id
-  cidr_block              = "10.0.1.0/24"
-  availability_zone       = data.aws_availability_zones.available.names[0]
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name                                        = "${var.cluster_name}-public-1"
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
-    "kubernetes.io/role/elb"                    = "1"
-  }
-}
-
-resource "aws_subnet" "public_subnet_2" {
-  vpc_id                  = aws_vpc.eks_vpc.id
-  cidr_block              = "10.0.2.0/24"
-  availability_zone       = data.aws_availability_zones.available.names[1]
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name                                        = "${var.cluster_name}-public-2"
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
-    "kubernetes.io/role/elb"                    = "1"
-  }
-}
-
-resource "aws_route_table" "public_rt" {
-  vpc_id = aws_vpc.eks_vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
-  }
-
-  tags = {
-    Name = "${var.cluster_name}-public-rt"
-  }
-}
-
-resource "aws_route_table_association" "public_1" {
-  subnet_id      = aws_subnet.public_subnet_1.id
-  route_table_id = aws_route_table.public_rt.id
-}
-
-resource "aws_route_table_association" "public_2" {
-  subnet_id      = aws_subnet.public_subnet_2.id
-  route_table_id = aws_route_table.public_rt.id
-}
-
-# ==========================================
-# IAM Roles (EKS Cluster & Node Groups)
-# ==========================================
-
-resource "aws_iam_role" "eks_cluster_role" {
-  name = "${var.cluster_name}-cluster-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "eks.amazonaws.com"
-      }
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-  role       = aws_iam_role.eks_cluster_role.name
-}
-
-resource "aws_iam_role" "eks_nodes_role" {
-  name = "${var.cluster_name}-node-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "ec2.amazonaws.com"
-      }
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "eks_worker_node_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-  role       = aws_iam_role.eks_nodes_role.name
-}
-
-resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-  role       = aws_iam_role.eks_nodes_role.name
-}
-
-resource "aws_iam_role_policy_attachment" "ec2_container_registry_read_only" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-  role       = aws_iam_role.eks_nodes_role.name
-}
-
-# ==========================================
-# EKS Cluster Setup
-# ==========================================
-
-resource "aws_eks_cluster" "eks" {
-  name     = var.cluster_name
-  role_arn = aws_iam_role.eks_cluster_role.arn
-
-  vpc_config {
-    subnet_ids = [
-      aws_subnet.public_subnet_1.id,
-      aws_subnet.public_subnet_2.id
-    ]
-  }
-
-  depends_on = [
-    aws_iam_role_policy_attachment.eks_cluster_policy
-  ]
-}
-
-# ==========================================
-# EKS Node Group (Workers)
-# ==========================================
-
-resource "aws_eks_node_group" "nodes" {
-  cluster_name    = aws_eks_cluster.eks.name
-  node_group_name = "${var.cluster_name}-node-group"
-  node_role_arn   = aws_iam_role.eks_nodes_role.arn
-  subnet_ids      = [
-    aws_subnet.public_subnet_1.id,
-    aws_subnet.public_subnet_2.id
-  ]
-
-  scaling_config {
-    desired_size = 2
-    max_size     = 4
-    min_size     = 1
-  }
-
-  instance_types = ["t3.medium"]
-
-  depends_on = [
-    aws_iam_role_policy_attachment.eks_worker_node_policy,
-    aws_iam_role_policy_attachment.eks_cni_policy,
-    aws_iam_role_policy_attachment.ec2_container_registry_read_only
-  ]
+provider "kubernetes" {
+  host                   = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.cluster.token
 }
