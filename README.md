@@ -141,9 +141,9 @@ This starts the Locust web interface at `http://localhost:8089`.
 ## 📊 Performance & Load Testing Results
 
 Locust Tests:
+<img width="1877" height="631" alt="image" src="https://github.com/user-attachments/assets/8a8f201e-24ff-41b9-be8c-4b44f94cbc70" />
 
-![alt text]({3BCD4C6D-A093-40A2-8F3D-11950BDD1125}.png)
+<img width="1875" height="450" alt="image" src="https://github.com/user-attachments/assets/7155e119-54e5-41b0-9933-5c880256466f" />
 
-![alt text]({8E28BAA1-E7FF-48BE-B37D-F37F30996F37}.png)
+<img width="1833" height="457" alt="image" src="https://github.com/user-attachments/assets/8ccd2c7d-956a-493c-9303-ae5be4b6be24" />
 
-![alt text]({D4AEAF1A-3F66-4934-BD2D-1E8E85667865}.png)
