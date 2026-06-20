@@ -33,6 +33,13 @@ class TextInput(BaseModel):
 class BatchInput(BaseModel):
     texts: List[str]
 
+from fastapi.responses import RedirectResponse
+
+@app.get("/")
+def root_redirect():
+    """Redirect to API documentation"""
+    return RedirectResponse(url="/docs")
+
 @app.get("/health")
 def health_check():
     """Health check endpoint"""
