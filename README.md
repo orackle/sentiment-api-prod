@@ -40,6 +40,11 @@ A high-performance, asynchronous sentiment analysis production API built with **
 
 ---
 
+## Architecture 
+
+<img width="14183" height="5864" alt="image" src="https://github.com/user-attachments/assets/c3a8c622-f6d7-4211-8581-a09bf1ab7be4" />
+
+
 ## 📂 Project Structure
 ```text
 sentiment-api-prod/
