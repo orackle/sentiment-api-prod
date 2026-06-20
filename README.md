@@ -6,9 +6,9 @@ colorTo: indigo
 sdk: docker
 pinned: false
 ---
-
-![Python](https://img.shields.io/badge/python-3.10-blue.svg)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green)
+[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/lilyofthewater/sentiment-api)
+![Python](https://img.shields.io/badge/python-3.14-blue.svg)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.138-green)
 ![Docker](https://img.shields.io/badge/Docker-ready-blue)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-deployed-brightgreen)
 ![Model](https://img.shields.io/badge/model-DistilBERT-orange)
