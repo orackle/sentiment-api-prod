@@ -1,3 +1,9 @@
+
+![Python](https://img.shields.io/badge/python-3.10-blue.svg)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green)
+![Docker](https://img.shields.io/badge/Docker-ready-blue)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-deployed-brightgreen)
+![Model](https://img.shields.io/badge/model-DistilBERT-orange)
 [![CI/CD Pipeline](https://github.com/orackle/sentiment-api-prod/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/orackle/sentiment-api-prod/actions/workflows/ci-cd.yml)
 
 ---
