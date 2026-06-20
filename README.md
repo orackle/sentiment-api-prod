@@ -1,3 +1,11 @@
+---
+title: Sentiment API Prod
+emoji: 🎭
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+---
 
 ![Python](https://img.shields.io/badge/python-3.10-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green)
