@@ -17,5 +17,5 @@ COPY app/ app/
 # Expose port 8000
 EXPOSE 8000
 
-# Start FastAPI application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Start FastAPI application, defaulting to port 7860 for Hugging Face Spaces
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}"]
