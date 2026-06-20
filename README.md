@@ -1,4 +1,5 @@
 [![CI/CD Pipeline](https://github.com/orackle/sentiment-api-prod/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/orackle/sentiment-api-prod/actions/workflows/ci-cd.yml)
+
 ---
 
 # 🎭 Sentiment Analysis Production API
