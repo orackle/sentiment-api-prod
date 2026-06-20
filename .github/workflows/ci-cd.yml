@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r app/requirements.txt pytest httpx
       - name: Run unit tests
-        run: pytest tests/
+        run: python -m pytest tests/
 
   build-and-deploy:
     needs: test
