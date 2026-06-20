@@ -46,6 +46,9 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
       
+      - name: Pull image locally to runner
+        run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+      
       - name: Create k8s Kind cluster
         uses: helm/kind-action@v1.8.0
         with:
