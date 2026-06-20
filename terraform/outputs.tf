@@ -1,19 +1,14 @@
-output "cluster_name" {
+output "ecr_repository_url" {
+  description = "URL of the ECR repository"
+  value       = aws_ecr_repository.sentiment_api.repository_url
+}
+
+output "eks_cluster_name" {
   description = "Name of the EKS cluster"
-  value       = aws_eks_cluster.eks.name
+  value       = module.eks.cluster_name
 }
 
-output "cluster_endpoint" {
-  description = "Endpoint of the EKS cluster"
-  value       = aws_eks_cluster.eks.endpoint
-}
-
-output "cluster_security_group_id" {
-  description = "Security group ID attached to the EKS cluster"
-  value       = aws_eks_cluster.eks.vpc_config[0].cluster_security_group_id
-}
-
-output "kubeconfig_update_command" {
-  description = "Command to run locally to configure kubectl to access the cluster"
-  value       = "aws eks --region ${var.aws_region} update-kubeconfig --name ${aws_eks_cluster.eks.name}"
+output "configure_kubectl" {
+  description = "Command to update kubeconfig"
+  value       = "aws eks update-kubeconfig --region ${var.aws_region} --name ${module.eks.cluster_name}"
 }

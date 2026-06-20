@@ -1,5 +1,5 @@
 variable "aws_region" {
-  description = "AWS region to deploy resources"
+  description = "AWS region"
   type        = string
   default     = "us-east-1"
 }
@@ -10,8 +10,14 @@ variable "cluster_name" {
   default     = "sentiment-api-cluster"
 }
 
-variable "vpc_cidr" {
-  description = "CIDR block for the VPC"
+variable "node_instance_type" {
+  description = "EC2 instance type for worker nodes"
   type        = string
-  default     = "10.0.0.0/16"
+  default     = "t3.small"   # Free tier eligible (t2.micro is also eligible but t3.small has more memory)
+}
+
+variable "desired_capacity" {
+  description = "Desired number of worker nodes"
+  type        = number
+  default     = 1
 }
