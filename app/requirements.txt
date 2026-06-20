@@ -1,0 +1,10 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+fastapi
+uvicorn
+transformers
+torch==2.12.1+cpu
+pydantic
+pytest
+httpx
+locust
+prometheus-client
