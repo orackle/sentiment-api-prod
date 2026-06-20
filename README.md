@@ -4,6 +4,7 @@
 ![Docker](https://img.shields.io/badge/Docker-ready-blue)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-deployed-brightgreen)
 ![Model](https://img.shields.io/badge/model-DistilBERT-orange)
+![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?logo=terraform)
 [![CI/CD Pipeline](https://github.com/orackle/sentiment-api-prod/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/orackle/sentiment-api-prod/actions/workflows/ci-cd.yml)
 
 ---
